@@ -11,6 +11,8 @@ const ColorList = ({ colors, updateColors, history }) => {
   const [editing, setEditing] = useState(false);
   const [colorToEdit, setColorToEdit] = useState(initialColor);
 
+  const [colorToAdd, setColorToAdd] = useState(initialColor)
+
   const editColor = color => {
     setEditing(true);
     setColorToEdit(color);
@@ -33,7 +35,7 @@ const ColorList = ({ colors, updateColors, history }) => {
         updateColors(updatedColorList)
         // props.history.push(`/bubblepage`)
       })
-  };
+  }
 
   const deleteColor = colorToDelete => {
     // make a delete request to delete this color
@@ -43,15 +45,26 @@ const ColorList = ({ colors, updateColors, history }) => {
         const deletionList = colors.filter(color => colorToDelete.id !== color.id)
         updateColors(deletionList)
         history.push('/bubblepage')
+        setEditing(false)
       })
-  };
+  }
+
+  const addColor = (e) => {
+    e.preventDefault()
+    axiosWithAuth()
+    .post(`/colors`, colorToAdd)
+    .then(res => {
+      updateColors(res.data)
+    })
+  }
 
   return (
+    <>
     <div className="colors-wrap">
       <p>colors</p>
       <ul>
         {colors.map(color => (
-          <li key={color.color} onClick={() => editColor(color)}>
+          <li key={color.id} onClick={() => editColor(color)}>
             <span>
               <span className="delete" onClick={() => deleteColor(color)}>
                 x
@@ -95,15 +108,13 @@ const ColorList = ({ colors, updateColors, history }) => {
           </div>
         </form>
       )}
-      <div className="spacer" />
-      {/* stretch - build another form here to add a color */}
-      {/* <form onSubmit={saveAdd}>
-          <legend>edit color</legend>
+      <form onSubmit={addColor}>
+          <legend>add color</legend>
           <label>
             color name:
             <input
               onChange={e =>
-                setColorToEdit({ ...colorToAdd, color: e.target.value })
+                setColorToAdd({ ...colorToAdd, color: e.target.value })
               }
               value={colorToAdd.color}
             />
@@ -112,7 +123,7 @@ const ColorList = ({ colors, updateColors, history }) => {
             hex code:
             <input
               onChange={e =>
-                setColorToEdit({
+                setColorToAdd({
                   ...colorToAdd,
                   code: { hex: e.target.value }
                 })
@@ -121,11 +132,13 @@ const ColorList = ({ colors, updateColors, history }) => {
             />
           </label>
           <div className="button-row">
-            <button type="submit">save</button>
-            <button onClick={() => setEditing(false)}>cancel</button>
+            <button type="submit">add</button>
           </div>
-        </form> */}
+        </form>
+      <div className="spacer" />
+      {/* stretch - build another form here to add a color */}
     </div>
+    </>
   );
 };
 
